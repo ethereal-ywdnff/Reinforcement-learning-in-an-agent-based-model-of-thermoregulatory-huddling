@@ -7,12 +7,12 @@ filename = "output.txt"
 N = 12
 data = np.fromfile(filename, count=-1, sep=',')
 T = int(np.floor(len(data) / (N * 4 + 3)))
-print(T)
 data = data[0:(T * (N * 4 + 3))]
 data = data.reshape([T, N * 4 + 3])
 bt = 0
-b_t = np.zeros(T)
+body_temp = np.zeros(T)
 
+ambient_temp = data[:, -3]
 Huddling = data[:, -2]
 PupFlow = data[:, -1]
 
@@ -38,11 +38,11 @@ for t in range(T):
 for b in range(T):
     for c in range(N):
         bt += np.sum(Bsorted[b, c])
-    b_t[b] = bt / N
+    body_temp[b] = bt / N
     bt = 0
-sorted_bt = sorted(b_t)
-print(b_t)
-print(sorted_bt)
+# sorted_bt = sorted(b_t)
+print(body_temp)
+# print(sorted_bt)
 
 # example plots
 
@@ -67,10 +67,10 @@ print(sorted_bt)
 # f2.set_ylabel('pup flow')
 
 
-temp_vec = np.linspace(10, 30, T)
+temp_vec = np.linspace(10, 22, T)
 Fig3 = pl.figure()
 f1 = Fig3.add_subplot(111)
-f1.plot(temp_vec, sorted_bt, '-')
-f1.set_xlabel('body temperature')
-f1.set_ylabel('body temperature')
+f1.plot(ambient_temp, body_temp)
+f1.set_xlabel('Ambient temperature')
+f1.set_ylabel('Body temperature')
 pl.show()
