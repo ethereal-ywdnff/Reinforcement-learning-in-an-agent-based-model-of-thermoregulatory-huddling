@@ -19,8 +19,8 @@ big_circle_radius = 200
 small_circle_radius = 20
 
 # 定义小圆圈的颜色
-blue_circle_index = random.randint(0, 11)  # 随机选择一个小圆圈作为蓝色
-small_circle_colors = [(0, 0, 255) if i == blue_circle_index else (0, 0, 0) for i in range(12)]
+blue_circle_index = random.randint(0, 11)  # 随机选择一个小圆圈作为初始蓝色
+small_circle_colors = [(0, 0, 255) if i == blue_circle_index else (192, 192, 192) for i in range(12)]
 
 # 定义小圆圈的位置和速度向量
 x = [random.randint(big_circle_radius, screen_width - big_circle_radius) for _ in range(12)]
@@ -29,6 +29,10 @@ speeds = [(0, 0) for _ in range(12)]  # 初始速度为零
 
 # 吸引力参数
 attraction_factor = 0.1  # 调整吸引力的强度
+
+# 颜色变动参数
+color_change_interval = 20  # 每隔多少帧改变颜色
+frame_counter = 0
 
 # 主循环
 clock = pygame.time.Clock()
@@ -66,14 +70,20 @@ while True:
 
         pygame.draw.circle(screen, small_circle_colors[i], (int(x[i]), int(y[i])), small_circle_radius)
 
+    # 每隔一定帧数改变颜色
+    frame_counter += 1
+    if frame_counter >= color_change_interval:
+        frame_counter = 0
+        # 找到当前蓝色小圆圈的索引
+        blue_index = small_circle_colors.index((0, 0, 255))
+        # 将当前蓝色小圆圈颜色改回黑色
+        small_circle_colors[blue_index] = (192, 192, 192)
+        # 随机选择一个新的小圆圈作为蓝色
+        new_blue_index = random.randint(0, 11)
+        small_circle_colors[new_blue_index] = (0, 0, 255)
+
     pygame.display.flip()
     clock.tick(60)
-
-
-
-
-
-
 
 
 
