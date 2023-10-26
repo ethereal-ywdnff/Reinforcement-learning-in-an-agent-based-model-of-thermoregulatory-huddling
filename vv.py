@@ -7,7 +7,8 @@ import random
 pygame.init()
 
 # 设置屏幕尺寸和颜色
-screen_width, screen_height = 800, 600
+screen_width, screen_height = 600, 600
+border_color = (0, 0, 0)  # 边框颜色为黑色
 bg_color = (255, 255, 255)
 
 # 创建屏幕
@@ -33,6 +34,9 @@ attraction_factor = 0.1  # 调整吸引力的强度
 # 颜色变动参数
 color_change_interval = 20  # 每隔多少帧改变颜色
 frame_counter = 0
+
+# 距离中心点的最小距离
+min_distance_to_center = big_circle_radius - small_circle_radius - 5  # 略小于大圆圈半径
 
 # 主循环
 clock = pygame.time.Clock()
@@ -69,21 +73,34 @@ while True:
         y[i] += speeds[i][1]
 
         pygame.draw.circle(screen, small_circle_colors[i], (int(x[i]), int(y[i])), small_circle_radius)
+        # pygame.draw.circle(screen, border_color, (int(x[i]), int(y[i])), small_circle_radius + 1, 1)
 
     # 每隔一定帧数改变颜色
     frame_counter += 1
     if frame_counter >= color_change_interval:
         frame_counter = 0
         # 找到当前蓝色小圆圈的索引
-        blue_index = small_circle_colors.index((0, 0, 255))
-        # 将当前蓝色小圆圈颜色改回黑色
-        small_circle_colors[blue_index] = (192, 192, 192)
-        # 随机选择一个新的小圆圈作为蓝色
-        new_blue_index = random.randint(0, 11)
-        small_circle_colors[new_blue_index] = (0, 0, 255)
+        blue_indices = [i for i, color in enumerate(small_circle_colors) if color == (0, 0, 255)]
+        if blue_indices:
+            for index in blue_indices:
+                # 将当前蓝色小圆圈颜色改回黑色
+                small_circle_colors[index] = (0, 0, 0)
+            # 随机选择一个新的小圆圈作为蓝色
+            new_blue_index = random.choice([i for i in range(12) if i not in blue_indices])
+            small_circle_colors[new_blue_index] = (0, 0, 255)
+        for i in range(12):
+            if i != new_blue_index:
+                distance_to_center = math.hypot(x[i] - screen_width // 2, y[i] - screen_height // 2)
+                if distance_to_center <= min_distance_to_center:
+                    # 将小圆圈颜色改为红色
+                    small_circle_colors[i] = (255, 0, 0)
+                    for t in range(12):
+                        if t != i and t != new_blue_index:
+                            small_circle_colors[t] = (192, 192, 192)
 
     pygame.display.flip()
     clock.tick(60)
+
 
 
 
