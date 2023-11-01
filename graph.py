@@ -1,5 +1,5 @@
 import numpy as np
-import pylab as pl
+import matplotlib.pyplot as pl
 
 filename = "output.txt"
 
@@ -43,29 +43,6 @@ for b in range(T):
 # sorted_bt = sorted(b_t)
 # print(body_temp)
 # print(sorted_bt)
-
-# example plots
-
-
-# Fig1 = pl.figure()
-# f1 = Fig1.add_subplot(311)
-# f1.plot(Fsorted[:,1:],'k.')
-# f1.set_ylabel('fitness')
-# f2 = Fig1.add_subplot(312)
-# f2.plot(Gsorted[:,1],'-')
-# f2.set_ylabel('G_min')
-# f3 = Fig1.add_subplot(313)
-# f3.hist(Gsorted[:,1])
-# f3.set_ylabel('histogram (G_min)')
-
-# Fig2 = pl.figure()
-# f1 = Fig2.add_subplot(211)
-# f1.plot(Huddling)
-# f1.set_ylabel('huddling')
-# f2 = Fig2.add_subplot(212)
-# f2.plot(PupFlow)
-# f2.set_ylabel('pup flow')
-
 
 temp_vec = np.linspace(10, 22, T)
 Fig3 = pl.figure()

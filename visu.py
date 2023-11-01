@@ -149,7 +149,7 @@ if __name__ == '__main__':
                         x[i] += (ra - rho - r) * x[i] / rho * dt
                         y[i] += (ra - rho - r) * y[i] / rho * dt
 
-                    xyfile.write(f"{x[i]},{y[i]},")
+                    # xyfile.write(f"{x[i]},{y[i]},")
 
                 # Keep contact agents away from each other
                 touching = [[False for _ in range(n_agents)] for _ in range(n_agents)]

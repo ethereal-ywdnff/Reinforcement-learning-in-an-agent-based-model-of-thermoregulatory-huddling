@@ -24,7 +24,7 @@ dt = 0.05                                           # integration time constant
 if __name__ == '__main__':
     print(f"Number of Agents: {n_agents}")
 
-    with open("x_y.txt", "a") as xyfile:
+    with open("position.txt", "a") as position:
 
         for d in range(len(ambient_temp_set)):  # simulation under different ambient temperature
             ambient_temp = ambient_temp_set[d]
@@ -78,7 +78,7 @@ if __name__ == '__main__':
                 y[i] = rho_init * math.sin(theta_init)
                 theta[i] = (np.random.rand() - 0.5) * 2. * math.pi
                 Tb[i] = preferred_temp
-                xyfile.write(f"{x[i]},{y[i]},")
+                position.write(f"{x[i]},{y[i]},")
             # Reset metrics
             huddling = 0.0
             groups = 0.0
@@ -154,7 +154,7 @@ if __name__ == '__main__':
                         x[i] += (ra - rho - r) * x[i] / rho * dt
                         y[i] += (ra - rho - r) * y[i] / rho * dt
 
-                    xyfile.write(f"{x[i]},{y[i]},")
+                    # position.write(f"{x[i]},{y[i]},")
 
                 # Keep contact agents away from each other
                 touching = [[False for _ in range(n_agents)] for _ in range(n_agents)]
@@ -176,7 +176,7 @@ if __name__ == '__main__':
                 for i in range(n_agents):
                     x[i] += vx[i] * dt
                     y[i] += vy[i] * dt
-                    xyfile.write(f"{x[i]},{y[i]},")
+                    position.write(f"{x[i]},{y[i]},")
 
                 # Increment huddling metrics
                 if t >= t0:
