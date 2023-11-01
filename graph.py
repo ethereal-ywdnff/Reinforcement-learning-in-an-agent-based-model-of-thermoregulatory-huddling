@@ -17,7 +17,7 @@ Huddling = data[:, -2]
 PupFlow = data[:, -1]
 
 data = data[:, 0:-3].reshape([T, N, 4])
-
+print(data.shape)
 G = data[:, :, 0]
 K = data[:, :, 1]
 B = data[:, :, 2]
@@ -41,7 +41,7 @@ for b in range(T):
     body_temp[b] = bt / N
     bt = 0
 # sorted_bt = sorted(b_t)
-print(body_temp)
+# print(body_temp)
 # print(sorted_bt)
 
 # example plots
