@@ -6,16 +6,17 @@ filename = "position.txt"
 # extract data from long list
 n_agent = 12
 data = np.fromfile(filename, count=-1, sep=',')
-# print(data.shape)
+print(data.shape)
 T = int(np.floor(len(data) / 6))
-data = data[T:T*2]
-data = data.reshape([T//(n_agent*2), n_agent * 2])
-# print(data)
+data = data[0:T]
+data = data.reshape([T//(n_agent*3), n_agent * 3])
+print(data.shape)
 # print(data[1, 0])
 # print(data[:, 1][0])
 
 
-colors = ['red', 'blue', 'green', 'orange', 'purple', 'pink', 'cyan', 'magenta', 'yellow', 'brown', 'gray', 'black']
+# colors = ['red', 'blue', 'green', 'orange', 'purple', 'pink', 'cyan', 'magenta', 'yellow', 'brown', 'gray', 'black']
+cmap = plt.get_cmap('coolwarm')
 
 plt.figure()
 
@@ -24,18 +25,18 @@ a = 0
 for i in range(len(data[:, 0])):
     a += 1
     plt.clf()
-    plt.scatter(data[i, 0], data[i, 1], s=100, marker='o')
-    plt.scatter(data[i, 2], data[i, 3], s=100, marker='o')
-    plt.scatter(data[i, 4], data[i, 5], s=100, marker='o')
-    plt.scatter(data[i, 6], data[i, 7], s=100, marker='o')
-    plt.scatter(data[i, 8], data[i, 9], s=100, marker='o')
-    plt.scatter(data[i, 10], data[i, 11], s=100, marker='o')
-    plt.scatter(data[i, 12], data[i, 13], s=100, marker='o')
-    plt.scatter(data[i, 14], data[i, 15], s=100, marker='o')
-    plt.scatter(data[i, 16], data[i, 17], s=100, marker='o')
-    plt.scatter(data[i, 18], data[i, 19], s=100, marker='o')
-    plt.scatter(data[i, 20], data[i, 21], s=100, marker='o')
-    plt.scatter(data[i, 22], data[i, 23], s=100, marker='o')
+    plt.scatter(data[i, 0], data[i, 1], s=200, color = cmap(data[i, 2] / 40), marker='o')
+    plt.scatter(data[i, 3], data[i, 4], s=200, color = cmap(data[i, 5] / 40), marker='o')
+    plt.scatter(data[i, 6], data[i, 7], s=200, color = cmap(data[i, 8] / 40), marker='o')
+    plt.scatter(data[i, 9], data[i, 10], s=200, color = cmap(data[i, 11] / 40), marker='o')
+    plt.scatter(data[i, 12], data[i, 13], s=200, color = cmap(data[i, 14] / 40), marker='o')
+    plt.scatter(data[i, 15], data[i, 16], s=200, color = cmap(data[i, 17] / 40), marker='o')
+    plt.scatter(data[i, 18], data[i, 19], s=200, color = cmap(data[i, 20] / 40), marker='o')
+    plt.scatter(data[i, 21], data[i, 22], s=200, color = cmap(data[i, 23] / 40), marker='o')
+    plt.scatter(data[i, 24], data[i, 25], s=200, color = cmap(data[i, 26] / 40), marker='o')
+    plt.scatter(data[i, 27], data[i, 28], s=200, color = cmap(data[i, 29] / 40), marker='o')
+    plt.scatter(data[i, 30], data[i, 31], s=200, color = cmap(data[i, 32] / 40), marker='o')
+    plt.scatter(data[i, 33], data[i, 34], s=200, color = cmap(data[i, 35] / 40), marker='o')
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title('visualization')

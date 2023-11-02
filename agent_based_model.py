@@ -4,7 +4,7 @@ import numpy as np
 
 
 n_agents = 12                                       # number of agents
-ambient_temp_set = np.array([10, 13, 16, 19, 22, 25])   # ambient temperature set
+ambient_temp_set = np.array([10, 14, 18, 22, 26, 30])   # ambient temperature set
 alpha = 3.0                                         # fitness weighting
 n_sensors = 1000                                    # number of sensors (per agent)
 t1 = 1000                                           # number of iterations of huddling dynamics
@@ -19,7 +19,7 @@ vr = 200.0                                          # rotation velocity
 sigma = -1./100.0                                   # constant for sensor/motor mapping
 preferred_temp = 37.0                               # preferred body temperature
 dt = 0.05                                           # integration time constant
-
+a = 0
 
 if __name__ == '__main__':
     print(f"Number of Agents: {n_agents}")
@@ -78,13 +78,12 @@ if __name__ == '__main__':
                 y[i] = rho_init * math.sin(theta_init)
                 theta[i] = (np.random.rand() - 0.5) * 2. * math.pi
                 Tb[i] = preferred_temp
-                position.write(f"{x[i]},{y[i]},")
+                position.write(f"{x[i]},{y[i]},{Tb[i]},")
             # Reset metrics
             huddling = 0.0
             groups = 0.0
             Adifference = np.zeros(n_agents)
             Aprevious = np.zeros(n_agents)
-
 
             for t in range(t1):
                 # Compute distances between agents
@@ -176,7 +175,7 @@ if __name__ == '__main__':
                 for i in range(n_agents):
                     x[i] += vx[i] * dt
                     y[i] += vy[i] * dt
-                    position.write(f"{x[i]},{y[i]},")
+                    position.write(f"{x[i]},{y[i]},{Tb[i]},")
 
                 # Increment huddling metrics
                 if t >= t0:
