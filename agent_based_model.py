@@ -20,6 +20,8 @@ sigma = -1./100.0                                   # constant for sensor/motor 
 preferred_temp = 37.0                               # preferred body temperature
 dt = 0.05                                           # integration time constant
 a = 0
+tb_prev = 0
+gamma = 0.01
 
 if __name__ == '__main__':
     print(f"Number of Agents: {n_agents}")
@@ -37,6 +39,9 @@ if __name__ == '__main__':
             x = np.zeros(n_agents)
             y = np.zeros(n_agents)
             theta = np.zeros(n_agents)
+            p = np.zeros(n_agents)
+            w = np.zeros(n_agents)
+            reward = 0
 
             LR = np.zeros((n_agents, n_sensors), dtype=int)
             tau = np.zeros((n_agents, n_sensors))
@@ -176,6 +181,13 @@ if __name__ == '__main__':
                     x[i] += vx[i] * dt
                     y[i] += vy[i] * dt
                     position.write(f"{x[i]},{y[i]},{Tb[i]},")
+                    if tb_prev != 0:
+                        reward = np.abs(Tb[i] - preferred_temp) > np.abs(tb_prev - preferred_temp)
+                    for j in range(n_agents):
+                        p[i] += w[i]*touching[i][j]
+                    for j in range(n_agents):
+                        w[i] += gamma*(reward - p[i])*touching[i][j]
+                    theta[i] += theta[i]*p[i]
 
                 # Increment huddling metrics
                 if t >= t0:
