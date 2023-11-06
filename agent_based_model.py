@@ -20,7 +20,7 @@ sigma = -1./100.0                                   # constant for sensor/motor 
 preferred_temp = 37.0                               # preferred body temperature
 dt = 0.05                                           # integration time constant
 a = 0
-tb_prev = 0
+
 gamma = 0.01
 
 if __name__ == '__main__':
@@ -35,12 +35,15 @@ if __name__ == '__main__':
 
             G = np.random.rand(n_agents) * Gmax
             K2 = np.random.rand(n_agents) * Kmax
+            # G = np.ones(n_agents) * Gmax
+            # K2 = np.ones(n_agents) * Kmax
 
             x = np.zeros(n_agents)
             y = np.zeros(n_agents)
             theta = np.zeros(n_agents)
             p = np.zeros(n_agents)
-            w = np.zeros(n_agents)
+            w = np.zeros((n_agents, n_agents))
+            tb_prev = np.zeros(n_agents)
             reward = 0
 
             LR = np.zeros((n_agents, n_sensors), dtype=int)
@@ -77,8 +80,10 @@ if __name__ == '__main__':
 
             # Reset positions and orientations
             for i in range(n_agents):
+
                 theta_init = np.random.rand() * 2.0 * math.pi
-                rho_init = np.random.rand() * r
+                # rho_init = np.random.rand() * r
+                rho_init = 0
                 x[i] = rho_init * math.cos(theta_init)
                 y[i] = rho_init * math.sin(theta_init)
                 theta[i] = (np.random.rand() - 0.5) * 2. * math.pi
@@ -90,6 +95,7 @@ if __name__ == '__main__':
             Adifference = np.zeros(n_agents)
             Aprevious = np.zeros(n_agents)
 
+                   
             for t in range(t1):
                 # Compute distances between agents
                 dx, dy, dkx, dky, dk2 = 0.0, 0.0, 0.0, 0.0, 0.0
@@ -141,14 +147,16 @@ if __name__ == '__main__':
 
                 # Update body temperatures
                 for i in range(n_agents):
+                    tb_prev[i] = Tb[i]
                     Tb[i] += (K2[i] * (1.0 - A[i]) * (Tc[i] - Tb[i]) - k1 * A[i] * (Tb[i] - ambient_temp) + G[i]) * dt
-
+                    
                 # Rotate and move agents forwards and enforce circular boundary
                 for i in range(n_agents):
                     sR = 1.0 / (1.0 + math.exp(sigma * (preferred_temp - Tb[i]) * TR[i]))
                     sL = 1.0 / (1.0 + math.exp(sigma * (preferred_temp - Tb[i]) * TL[i]))
 
-                    theta[i] += math.atan(vr * (sL - sR) / (sL + sR)) * dt
+                    # theta[i] += math.atan(vr * (sL - sR) / (sL + sR)) * dt
+                    theta[i] += math.atan(vr * (sL - sR) / (sL + sR)) * dt * p[i]
 
                     x[i] += math.cos(theta[i]) * v * dt
                     y[i] += math.sin(theta[i]) * v * dt
@@ -177,18 +185,19 @@ if __name__ == '__main__':
                                 vx[j] += f * dx2
                                 vy[j] += f * dy2
                                 touching[i][j] = True
+                
                 for i in range(n_agents):
                     x[i] += vx[i] * dt
                     y[i] += vy[i] * dt
-                    position.write(f"{x[i]},{y[i]},{Tb[i]},")
-                    if tb_prev != 0:
-                        reward = np.abs(Tb[i] - preferred_temp) > np.abs(tb_prev - preferred_temp)
+                    position.write(f"{x[i]},{y[i]},{Tb[i]},")             
+                    reward = np.abs(Tb[i] - preferred_temp) > np.abs(tb_prev[i] - preferred_temp)
+                    p[i] = 0
                     for j in range(n_agents):
-                        p[i] += w[i]*touching[i][j]
-                    for j in range(n_agents):
-                        w[i] += gamma*(reward - p[i])*touching[i][j]
-                    theta[i] += theta[i]*p[i]
+                        p[i] += w[i][j] * touching[i][j]
 
+                    for j in range(n_agents):
+                        w[i][j] += gamma * (reward - p[i]) * touching[i][j]
+                        
                 # Increment huddling metrics
                 if t >= t0:
                     for i in range(n_agents):
