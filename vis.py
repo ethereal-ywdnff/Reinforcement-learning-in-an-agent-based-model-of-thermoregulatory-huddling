@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# filename = "position.txt"
+filename = "position.txt"
 # filename = "position_noLearning.txt"
-filename = "position_Learning.txt"
+# filename = "position_Learning.txt"
 
 # extract data from long list
 n_agent = 12
