@@ -9,8 +9,8 @@ filename = "position.txt"
 n_agent = 12
 data = np.fromfile(filename, count=-1, sep=',')
 print(data.shape)
-T = int(np.floor(len(data) / 6))
-data = data[0:T]
+T = int(np.floor(len(data)))
+# data = data[0:T]
 data = data.reshape([T//(n_agent*3), n_agent * 3])
 # data = data[0:36036]
 # data = data.reshape([36036//(n_agent*3), n_agent * 3])
@@ -22,16 +22,17 @@ data = data.reshape([T//(n_agent*3), n_agent * 3])
 # colors = ['red', 'blue', 'green', 'orange', 'purple', 'pink', 'cyan', 'magenta', 'yellow', 'brown', 'gray', 'black']
 cmap = plt.get_cmap('coolwarm')
 
-plt.figure()
-
+plt.figure(figsize=(6, 6))
+# field_circle = plt.Circle((0, 0), 10, color='gray', fill=False, linestyle='dashed', linewidth=10)
+# plt.gca().add_patch(field_circle)
 
 a = 0
 # Update positions
 for i in range(len(data[:, 0])):
     a += 1
     plt.clf()
-    plt.xlim(-5, 10)
-    plt.ylim(-11.5, 5)
+    plt.xlim(-8, 10)
+    plt.ylim(-11.5, 8)
     plt.scatter(data[i, 0], data[i, 1], s=200, color = cmap(data[i, 2] / 40), marker='o')
     plt.scatter(data[i, 3], data[i, 4], s=200, color = cmap(data[i, 5] / 40), marker='o')
     plt.scatter(data[i, 6], data[i, 7], s=200, color = cmap(data[i, 8] / 40), marker='o')

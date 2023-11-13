@@ -4,7 +4,7 @@ import numpy as np
 
 
 n_agents = 12                                       # number of agents
-ambient_temp_set = np.array([10, 14, 18, 22, 26, 30])   # ambient temperature set
+ambient_temp_set = np.array([20])   # ambient temperature set
 alpha = 3.0                                         # fitness weighting
 n_sensors = 1000                                    # number of sensors (per agent)
 t1 = 1000                                           # number of iterations of huddling dynamics
@@ -34,10 +34,10 @@ if __name__ == '__main__':
                 print("Starting...", end='')
                 print(f"\tAmbient Temperature: {ambient_temp}")
 
-                G = np.random.rand(n_agents) * Gmax
-                K2 = np.random.rand(n_agents) * Kmax
-                # G = np.ones(n_agents) * Gmax
-                # K2 = np.ones(n_agents) * Kmax
+                # G = np.random.rand(n_agents) * Gmax
+                # K2 = np.random.rand(n_agents) * Kmax
+                G = np.ones(n_agents) * Gmax
+                K2 = np.ones(n_agents) * Kmax
 
                 x = np.zeros(n_agents)
                 y = np.zeros(n_agents)
@@ -81,7 +81,6 @@ if __name__ == '__main__':
 
                 # Reset positions and orientations
                 for i in range(n_agents):
-
                     theta_init = np.random.rand() * 2.0 * math.pi
                     # rho_init = np.random.rand() * r
                     rho_init = 0
@@ -224,9 +223,7 @@ if __name__ == '__main__':
 
                 runt = 1e9
                 minF = 1e9
-                
 
-            
                 # Identify the least fit agent and log metrics
                 for i in range(n_agents):
                     TbAvg = TbSum[i] * norm
@@ -234,9 +231,9 @@ if __name__ == '__main__':
                     if F < minF:
                         minF = F
                         runt = i
-                    logfile.write(f"{G[i]},{K2[i]},{TbAvg},{F},")
+                    logfile.write(f"{TbAvg},")
 
-                logfile.write(f"{ambient_temp},{huddling},{pupFlow},")
+                logfile.write(f"{ambient_temp},")
                 print(f"Progress: [{int((d+1)/len(ambient_temp_set)*100)}%] Completed\n")
 
 
