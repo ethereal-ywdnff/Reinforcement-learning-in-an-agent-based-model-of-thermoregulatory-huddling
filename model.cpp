@@ -21,13 +21,6 @@ int main(int argc, char** argv){
     // seed random number generator using current clock time (i.e., a different simulation each time)
     srand(time(NULL));
     
-    // if(argc<7){
-    //     cout<<
-    //     "Please supply number of agents, ambient temperature, alpha, generations, whether to evolve (1) or not (0), and filename.txt; e.g., './model 12 10.0 3.0 10000 1 test.txt' for the model reported by Wilson (2017)."
-    //     <<endl;
-    //     return 0;
-    // }
-    
     
     // Supplied model parameters
     int N = 12;                   // number of agents
@@ -133,11 +126,6 @@ int main(int argc, char** argv){
         TbSum[i] = 0.;
     }
     
-    // Reset metrics
-    double huddling = 0.;
-    double groups = 0.;
-    vector<double> Adifference(N,0.);
-    vector<double> Aprevious(N,0.);
 
     // INNER LOOP ITERATES HUDDLING TIMESTEPS WITHIN A GENERATION
     for(int t=0;t<t1;t++){
