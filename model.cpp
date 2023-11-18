@@ -38,6 +38,12 @@ int main(int argc, char** argv){
     ss1<<"position.txt";
     ofstream position;
     position.open(ss1.str().c_str(),ios::out|ios::trunc);
+
+    // association file
+    std::stringstream ss2;
+    ss2<<"association.txt";
+    ofstream association;
+    association.open(ss2.str().c_str(),ios::out|ios::trunc);
     
     // Preset model parameters
     int n = 1000;                           // number of sensors (per agent)
@@ -251,9 +257,13 @@ int main(int argc, char** argv){
             for (int j = 0; j < N; ++j) {
                 p[i] += w[i][j] * touching[i][j];
             }
+            
             for (int j = 0; j < N; ++j) {
                 w[i][j] += gamma * (reward - p[i]) * touching[i][j];
             }
+        }
+        for(int i=0;i<N;i++){
+            association<<p[i]<<",";
         }
         
         // increment huddling metrics
@@ -275,7 +285,7 @@ int main(int argc, char** argv){
     logfile.close();
     position.close();
 
-    system("python vis.py");
+    // system("python vis.py");
     return 0;
 };
 
