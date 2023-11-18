@@ -55,6 +55,7 @@ for i, (x, y) in enumerate(zip(ambient_temp, body_temp)):
 
 print(association.shape)
 f2 = Fig.add_subplot(212)
+f2.set_ylim(-0.5, 1.5)
 vector = np.linspace(1, 1000, 1000)
 f2.plot(vector, A)
 

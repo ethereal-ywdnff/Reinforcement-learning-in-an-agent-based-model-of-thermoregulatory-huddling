@@ -285,7 +285,7 @@ int main(int argc, char** argv){
     logfile.close();
     position.close();
 
-    // system("python vis.py");
+    system("python vis.py");
     return 0;
 };
 
