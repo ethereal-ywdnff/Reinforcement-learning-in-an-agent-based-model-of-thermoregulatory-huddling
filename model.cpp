@@ -260,11 +260,13 @@ int main(int argc, char** argv){
             
             for (int j = 0; j < N; ++j) {
                 w[i][j] += gamma * (reward - p[i]) * touching[i][j];
+                // cout << w[i][j] << endl;
+                association<<w[i][j]<<",";
             }
         }
-        for(int i=0;i<N;i++){
-            association<<p[i]<<",";
-        }
+        // for(int i=0;i<N;i++){
+        //     association<<p[i]<<",";
+        // }
         
         // increment huddling metrics
         if(t>=t0){
@@ -285,7 +287,7 @@ int main(int argc, char** argv){
     logfile.close();
     position.close();
 
-    system("python vis.py");
+    // system("python vis.py");
     return 0;
 };
 

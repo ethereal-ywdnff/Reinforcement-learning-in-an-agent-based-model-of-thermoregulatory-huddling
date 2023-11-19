@@ -47,7 +47,7 @@ for i in range(len(data[:, 0])):
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title('visualization')
-    plt.pause(0.1)
+    plt.pause(0.01)
     print(a)
 plt.show()
 

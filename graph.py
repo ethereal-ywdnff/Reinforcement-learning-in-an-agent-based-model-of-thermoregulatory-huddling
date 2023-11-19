@@ -13,17 +13,16 @@ data = data.reshape([T, N * 1 + 1])
 bt = 0
 body_temp = np.zeros(T)
 
-association = np.fromfile("association.txt", count=-1, sep=',')
-association = association.reshape(1000, N)
-A = association[:, 0]
+data2 = np.fromfile("association.txt", count=-1, sep=',')
+data2 = data2.reshape(1000, N*N)
+association = data2[:, :12]
+# print(association[:, :1].shape)
+# print(association)
 
 
 ambient_temp = data[:, -1]
-
 data = data[:, 0:-1].reshape([T, N, 1])
-
 B = data[:, :, 0]
-
 Bsorted = np.zeros([T, 12])
 
 for t in range(T):
@@ -43,7 +42,7 @@ print(f"ambient_temp: {ambient_temp}")
 print(f"body_temp: {body_temp}")
 # print(sorted_bt)
 
-temp_vec = np.linspace(10, 22, T)
+# temp_vec = np.linspace(10, 22, T)
 Fig = plt.figure(figsize=(6, 6))
 f1 = Fig.add_subplot(211)
 f1.plot(ambient_temp, body_temp)
@@ -52,11 +51,12 @@ f1.set_ylabel('Body temperature')
 for i, (x, y) in enumerate(zip(ambient_temp, body_temp)):
     f1.annotate(f'{y:.2f}', (x, y), textcoords="offset points", xytext=(0, 6), ha='center', va='center')
 
-
-print(association.shape)
 f2 = Fig.add_subplot(212)
 f2.set_ylim(-0.5, 1.5)
 vector = np.linspace(1, 1000, 1000)
-f2.plot(vector, A)
+f2.plot(vector, association)
+f2.set_xlabel('Iteration')
+f2.set_ylabel('Association')
 
+plt.tight_layout()
 plt.show()
