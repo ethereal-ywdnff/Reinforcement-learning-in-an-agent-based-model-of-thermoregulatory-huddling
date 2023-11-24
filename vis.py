@@ -9,9 +9,9 @@ filename = "position.txt"
 n_agent = 12
 data = np.fromfile(filename, count=-1, sep=',')
 print(data.shape)
-T = int(np.floor(len(data)))
-# data = data[0:T]
-data = data.reshape([T//(n_agent*3), n_agent * 3])
+# T = int(np.floor(len(data)))
+data = data[0:(len(data)//12)]
+data = data.reshape([len(data)//(n_agent*3), n_agent * 3])
 # data = data[0:36036]
 # data = data.reshape([36036//(n_agent*3), n_agent * 3])
 # print(data.shape)
