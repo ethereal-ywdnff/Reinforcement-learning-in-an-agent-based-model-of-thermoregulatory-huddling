@@ -10,7 +10,8 @@ n_agent = 12
 data = np.fromfile(filename, count=-1, sep=',')
 print(data.shape)
 # T = int(np.floor(len(data)))
-data = data[0:(len(data)//12)]
+# data = data[:((len(data))//12)]
+# print(data.shape)
 data = data.reshape([len(data)//(n_agent*3), n_agent * 3])
 # data = data[0:36036]
 # data = data.reshape([36036//(n_agent*3), n_agent * 3])
@@ -30,8 +31,8 @@ a = 0
 for i in range(len(data[:, 0])):
     a += 1
     plt.clf()
-    plt.xlim(-8, 10)
-    plt.ylim(-11.5, 8)
+    plt.xlim(-12, 12)
+    plt.ylim(-12, 12)
     plt.scatter(data[i, 0], data[i, 1], s=700, color = cmap(data[i, 2] / 40), marker='o')
     plt.scatter(data[i, 3], data[i, 4], s=700, color = cmap(data[i, 5] / 40), marker='o')
     plt.scatter(data[i, 6], data[i, 7], s=700, color = cmap(data[i, 8] / 40), marker='o')
@@ -47,7 +48,7 @@ for i in range(len(data[:, 0])):
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title('visualization')
-    plt.pause(0.01)
+    plt.pause(0.0001)
     print(a)
 plt.show()
 

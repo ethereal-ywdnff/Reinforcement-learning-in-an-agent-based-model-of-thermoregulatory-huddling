@@ -15,16 +15,17 @@
 using namespace std;
 
 double randDouble(void);
+void filialHuddling(int n);
 
 int main(int argc, char** argv){
     
     // seed random number generator using current clock time (i.e., a different simulation each time)
-    srand(time(NULL));
+    srand(2);
     
     
     // Supplied model parameters
     int N = 12;                   // number of agents
-    double Ta = 30;               // ambient temperature
+    double Ta = 20;               // ambient temperature
     double alpha = 3.0;           // fitness weighting
     
     // logfile
@@ -117,31 +118,30 @@ int main(int argc, char** argv){
     /*
      START OF MAIN SIMUALTION
      */
+    // Reset positions and orientations
+    for (int i=0;i<N;i++){
+        double theta_init = randDouble()*M_PI*2.;
+        // double rho_init = randDouble()*r;
+        double rho_init = 0;
+        x[i] = rho_init*cos(theta_init);
+        y[i] = rho_init*sin(theta_init);
+        theta[i] = (randDouble()-0.5)*2.*M_PI;
+        Tb[i] = Tp;
+        position<<x[i]<<","<<y[i]<<","<<Tb[i]<<",";
+        TbSum[i] = 0.;
+    }
+    // Reset metrics
+    double huddling = 1.;
+    double groups = 0.;
+    vector<double> Adifference(N,0.);
+    vector<double> Aprevious(N,0.);
+
     
     for (int day=0; day<60;day+=5){
         Tp = (40-32)*exp(-day/10)+32;
-    
-        // Reset positions and orientations
-        for (int i=0;i<N;i++){
-            double theta_init = randDouble()*M_PI*2.;
-            // double rho_init = randDouble()*r;
-            double rho_init = 0;
-            x[i] = rho_init*cos(theta_init);
-            y[i] = rho_init*sin(theta_init);
-            theta[i] = (randDouble()-0.5)*2.*M_PI;
-            Tb[i] = Tp;
-            position<<x[i]<<","<<y[i]<<","<<Tb[i]<<",";
-            TbSum[i] = 0.;
-        }
 
-        // Reset metrics
-            double huddling = 0.;
-            double groups = 0.;
-            vector<double> Adifference(N,0.);
-            vector<double> Aprevious(N,0.);
-        
 
-        // INNER LOOP ITERATES HUDDLING TIMESTEPS WITHIN A GENERATION
+        // INNER LOOP ITERATES HUDDLING TIMESTEPS
         for(int t=0;t<t1;t++){
             
             // Compute distances between agents; where overlapping set sensor to T_B of contacting agent
@@ -218,8 +218,8 @@ int main(int argc, char** argv){
                 double sR = 1./(1.+exp(sigma*(Tp-Tb[i])*TR[i]));
                 double sL = 1./(1.+exp(sigma*(Tp-Tb[i])*TL[i]));
                 
-                theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt;
-                // theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt*p[i];
+                // theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt;
+                theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt*p[i];
                 // V += V*p[i];
                 
                 x[i] += cos(theta[i])*V*dt;
@@ -309,10 +309,157 @@ int main(int argc, char** argv){
     position.close();
 
     // system("python vis.py");
+
+    filialHuddling(N);
+
     return 0;
 };
 
+void filialHuddling(int n) {
+    srand(1);
+    int timesteps = 50000;
+    double dt = 60./(double)timesteps;
+    double gamma = 0.001;   // Delta-rule learning-rate
+    double beta = 1./5.;
+    
+    // Q maintains associative strengths (alpha)
+    vector<vector<double> > Q(n);
+    for(int i=0;i<n;i++){
+        if(gamma == 0.){
+            Q[i].resize(n,1.);
+        } else {
+            Q[i].resize(n,0.);
+        }
+        Q[i][i] = 0.;
+    }
+    
+    // logfile
+    std::stringstream ss;
+    ss<<"learning.txt";
+    ofstream learning;
+    learning.open(ss.str().c_str(),ios::out|ios::trunc);
+    learning<<n<<",";    // record N first
+    
+    vector<int> I(n,0); // ID of the group it belongs to
+    vector<int> S(n,0);
+    
+    // constants
+    double k = 8.31;
+    double c1 = 19.;
+    double c2 = 3.;
+    double c3 = 1./40.;
+    // double Tp = 35.7;
+    
+    double TIME = 0.;
+    for(int t=0;t<timesteps;t++){
+        
+        TIME += dt;
+        
+        bool monte = true;
+        
+        for (int i=0;i<n;i++){
+            S[i] = 0;
+        }
+        
+        for (int i=0;i<n;i++){
+            S[I[i]]++;
+        }
+        
+        // model
+        double P  = exp(-TIME/k);       // brown fat depletion
+        double G  = k*(1.-k*P*log(P)); // metabolic rate as entropy
+        double M  = k*(1.-P);          // muscle mass
+        double T1 = c2*P;              // temperature preference 1
+        double N  = c1*exp(-k*T1);     // non-muscle mass
+        double T2 = c3*N*G;            // temperature preference 2
+        // cout <<T1<<" "<<T2<< endl;
+        
+        // number of groups
+        vector<int> groups(0);
+        int Ngroups = 0;
+        for(int i=0;i<n;i++){
+            if(S[i]>0){
+                groups.push_back(i);
+                Ngroups++;
+            }
+        }
+        
+        // randomly picked individual
+        int a = floor(randDouble()*n);
+        
+        double reward = 0.;
+        
+        if (Ngroups==1){
+            I[a]=(I[a]+1)%n;
+        }
+        else if (Ngroups==n){
+            int b=a;
+            while(I[b]==I[a]){
+                b = floor(randDouble()*n);
+            }
+            I[b]=I[a];
+        }
+        else {
+            int b=a;
+            while(I[b]==I[a]){
+                b = floor(randDouble()*n);
+            }
+            
+            // Thermodynamic temperature
+            double T = 1./(1.+exp(-Q[b][a]*(T1-T2)*beta));
+            
+            
+            // Join together the groups to which a and b belong
+            if (randDouble()<T){
+                
+                reward = 1.;
+                vector<int> A(0);
+                for(int i=0;i<n;i++){
+                    if(I[i]==I[a]){
+                        A.push_back(i);
+                    }
+                }
+                for(int i=0;i<A.size();i++){
+                    I[A[i]] = I[b];
+                }
+            }
+            
+            // Split pup a from its group
+            else {
+                reward = 0.;
+                vector<int> Q(n);
+                for(int i=0;i<Ngroups;i++){
+                    Q[groups[i]] = 1;
+                }
+                for(int i=0;i<n;i++){
+                    if(Q[i]==0){
+                        I[a] = i;
+                        break;
+                    }
+                }
+            }
 
+            // Update associative strengths
+            double sumQ = 0.;
+            for(int j=0; j<n;j++){
+                if(!(j==a)){
+                    sumQ += Q[a][j];
+                }
+            }
+            Q[a][b] += gamma*(reward-sumQ);
+        }
+        
+        // Log data to text file
+        for(int i=0;i<n;i++){
+            learning<<S[I[i]]<<","<<Q[0][i]<<","<<Q[i][0]<<",";
+        }
+        learning<<t*dt<<",";
+        learning<<endl;
+        
+    }
+    
+    learning.close();
+}
 
 double randDouble(void){
     /* 

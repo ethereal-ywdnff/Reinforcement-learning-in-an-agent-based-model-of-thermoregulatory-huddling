@@ -16,14 +16,36 @@ body_temp = np.zeros(T)
 data2 = np.fromfile("association.txt", count=-1, sep=',')
 
 data2 = data2.reshape(len(data2)//(N*N), N*N)
-association = data2[:, :12]
+print(data2.shape)
+association = data2[:, 12:24]
 # print(association[:, :1].shape)
 # print(association)
 
+F = "learning.txt"
+M = 3
+K = 1
+S = 5000
+data3 = np.fromfile(F,count=-1,sep=',')
+# print(data.shape)
+N = int(data3[0])
+# dt = data[1]
+# print(dt)
+data3 = data3[1:]
+T1 = int(np.floor(len(data3)/(N*M+K)))
+data3 = data3[0:(T1*(N*M+K))]
+data3 = data3.reshape([T1,N*M+K])
+time = data3[:,-1]
+data3 = data3[:,:N*M].reshape([T1,N,M])
+N2 = data3[:,:,0]
+QA = data3[:,:,1]
+
+Navg = np.reshape(N2,[T1//S,S,N])
+Navg = np.mean(Navg,axis=1)
+Navg = np.mean(Navg,axis=1)
 
 ambient_temp = data[:, -1]
-Huddling = data[:,-2]
-print(Huddling)
+Huddling = data[:,-2]*10
+# print(Huddling)
 
 data = data[:, 0:-2].reshape([T, N, 1])
 B = data[:, :, 0]
@@ -47,7 +69,7 @@ body_temp = sorted(body_temp)
 # print(sorted_bt)
 
 # temp_vec = np.linspace(10, 22, T)
-Fig = plt.figure(figsize=(6, 6))
+Fig = plt.figure(figsize=(7, 7))
 f1 = Fig.add_subplot(311)
 f1.plot(ambient_temp, body_temp)
 f1.set_xlabel('Ambient temperature')
@@ -64,11 +86,15 @@ f2.set_ylabel('Association')
 
 f3 = Fig.add_subplot(313)
 f3.set_title("Huddling")
-# f3.set_ylim(0, 1)
+# f3.set_ylim(0.2, 0.6)
 days = np.linspace(1, 60, len(Huddling))
-f3.plot(days, Huddling)
+f3.plot(days, Huddling, label="control")
+f3.plot(np.linspace(0,time[-1],Navg.shape[0]),Navg, label="learning")
 f3.set_xlabel('Days')
 f3.set_ylabel('Huddle Size')
+f3.legend()
+# f3.axis([0,60,1,np.ceil(N/2)+1])
+# f3.set_aspect(np.diff(f3.get_xlim())/np.diff(f3.get_ylim()), adjustable='box')
 
 plt.tight_layout()
 plt.show()
