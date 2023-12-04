@@ -20,7 +20,10 @@ void filialHuddling(int n);
 int main(int argc, char** argv){
     
     // seed random number generator using current clock time (i.e., a different simulation each time)
-    srand(2);
+    time_t seed = time(NULL);
+    std::cout << "Seed number: " << seed << std::endl;
+    srand(seed);
+    // srand(10);
     
     
     // Supplied model parameters
@@ -60,7 +63,7 @@ int main(int argc, char** argv){
     double sigma = -1./100.;                // constant for sensor/motor mapping
     double Tp = 37.;                        // preferred body temperature
     double dt = 0.05;                       // integration time constant
-    double gamma = 0.01;
+    double gamma = 0.2;
     
     // Evolvable thermal variables
     vector<double> G (N, Gmax);
@@ -118,195 +121,197 @@ int main(int argc, char** argv){
     /*
      START OF MAIN SIMUALTION
      */
-    // Reset positions and orientations
-    for (int i=0;i<N;i++){
-        double theta_init = randDouble()*M_PI*2.;
-        // double rho_init = randDouble()*r;
-        double rho_init = 0;
-        x[i] = rho_init*cos(theta_init);
-        y[i] = rho_init*sin(theta_init);
-        theta[i] = (randDouble()-0.5)*2.*M_PI;
-        Tb[i] = Tp;
-        position<<x[i]<<","<<y[i]<<","<<Tb[i]<<",";
-        TbSum[i] = 0.;
-    }
-    // Reset metrics
-    double huddling = 1.;
-    double groups = 0.;
-    vector<double> Adifference(N,0.);
-    vector<double> Aprevious(N,0.);
-
     
-    for (int day=0; day<60;day+=5){
-        Tp = (40-32)*exp(-day/10)+32;
+    for (int o=0; o<1; o++) {
+    
+        for (int day=0; day<60;day+=5){
+            Tp = (40-32)*exp(-day/10)+32;
+            // Reset positions and orientations
+            for (int i=0;i<N;i++){
+                double theta_init = randDouble()*M_PI*2.;
+                // double rho_init = randDouble()*r;
+                double rho_init = 0;
+                x[i] = rho_init*cos(theta_init);
+                y[i] = rho_init*sin(theta_init);
+                theta[i] = (randDouble()-0.5)*2.*M_PI;
+                Tb[i] = Tp;
+                position<<x[i]<<","<<y[i]<<","<<Tb[i]<<",";
+                TbSum[i] = 0.;
+            }
+            // Reset metrics
+            double huddling = 1.;
+            double groups = 0.;
+            vector<double> Adifference(N,0.);
+            vector<double> Aprevious(N,0.);
 
-
-        // INNER LOOP ITERATES HUDDLING TIMESTEPS
-        for(int t=0;t<t1;t++){
-            
-            // Compute distances between agents; where overlapping set sensor to T_B of contacting agent
-            double dOver2r, phi, dx, dy, dkx, dky, dk2;
-            for(int i=0;i<N;i++){
-                for(int k=0;k<n;k++){
-                    DK[i][k] = 1e9;
-                    tau[i][k] = Ta;
-                }
-                for(int j=0;j<N;j++){
-                    if(i!=j){
-                        dx = x[j]-x[i];
-                        dy = y[j]-y[i];
-                        if(dx*dx+dy*dy<=r2x4){
-                            for(int k=0;k<n;k++){
-                                dkx = x[j]-(x[i]+xk[k]);
-                                dky = y[j]-(y[i]+yk[k]);
-                                dk2 = dkx*dkx+dky*dky;
-                                if(dk2 < r2 && dk2 < DK[i][k]){
-                                    DK[i][k]=dk2;
-                                    tau[i][k]=Tb[j];
+            // INNER LOOP ITERATES HUDDLING TIMESTEPS
+            for(int t=0;t<t1;t++){
+                
+                // Compute distances between agents; where overlapping set sensor to T_B of contacting agent
+                double dOver2r, phi, dx, dy, dkx, dky, dk2;
+                for(int i=0;i<N;i++){
+                    for(int k=0;k<n;k++){
+                        DK[i][k] = 1e9;
+                        tau[i][k] = Ta;
+                    }
+                    for(int j=0;j<N;j++){
+                        if(i!=j){
+                            dx = x[j]-x[i];
+                            dy = y[j]-y[i];
+                            if(dx*dx+dy*dy<=r2x4){
+                                for(int k=0;k<n;k++){
+                                    dkx = x[j]-(x[i]+xk[k]);
+                                    dky = y[j]-(y[i]+yk[k]);
+                                    dk2 = dkx*dkx+dky*dky;
+                                    if(dk2 < r2 && dk2 < DK[i][k]){
+                                        DK[i][k]=dk2;
+                                        tau[i][k]=Tb[j];
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-            
-            // Compute contact temperatures T_C and exposed areas A
-            for(int i=0;i<N;i++){
-                Tc[i]=0.;
-                int contact = 0;
-                for(int k=0;k<n;k++){
-                    if(DK[i][k] < 1e9){
-                        Tc[i] += tau[i][k];
-                        contact++;
+                
+                // Compute contact temperatures T_C and exposed areas A
+                for(int i=0;i<N;i++){
+                    Tc[i]=0.;
+                    int contact = 0;
+                    for(int k=0;k<n;k++){
+                        if(DK[i][k] < 1e9){
+                            Tc[i] += tau[i][k];
+                            contact++;
+                        }
                     }
-                }
-                if(contact){
-                    Tc[i] /= (double)contact;
-                    A[i] = 1.-((double)contact*overdn);
-                } else {
-                    Tc[i] = 0.;
-                    A[i] = 1.;
-                }
-            }
-            
-            // Use theta to assign sensors to Left or Right of body and average
-            for(int i=0;i<N;i++){
-                TL[i]=0.;
-                TR[i]=0.;
-                for(int k=0;k<n;k++){
-                    LR[i][k]=(int)(M_PI-fabs(M_PI-fabs(fmod(theta[i]+piOver2,2.*M_PI)-phik[k]))<piOver2);
-                    if(LR[i][k]){
-                        TL[i] += tau[i][k];
+                    if(contact){
+                        Tc[i] /= (double)contact;
+                        A[i] = 1.-((double)contact*overdn);
                     } else {
-                        TR[i] += tau[i][k];
+                        Tc[i] = 0.;
+                        A[i] = 1.;
                     }
                 }
-                TL[i] *= nnorm;
-                TR[i] *= nnorm;
-            }
-            
-            
-            // Update body temperatures
-            for(int i=0;i<N;i++){
-                tb_prev[i] = Tb[i];
-                Tb[i] += (K2[i]*(1.-A[i])*(Tc[i]-Tb[i])-k1*A[i]*(Tb[i]-Ta)+G[i])*dt;
-            }
-            
-            // Rotate and move agents forwards and enforce circular boundary
-            for(int i=0;i<N;i++){
                 
-                double sR = 1./(1.+exp(sigma*(Tp-Tb[i])*TR[i]));
-                double sL = 1./(1.+exp(sigma*(Tp-Tb[i])*TL[i]));
-                
-                // theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt;
-                theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt*p[i];
-                // V += V*p[i];
-                
-                x[i] += cos(theta[i])*V*dt;
-                y[i] += sin(theta[i])*V*dt;
-                
-                double rho = sqrt(x[i]*x[i]+y[i]*y[i]);
-                if((rho+r)>=ra){
-                    x[i] += (ra-rho-r)*x[i]/rho*dt;
-                    y[i] += (ra-rho-r)*y[i]/rho*dt;
+                // Use theta to assign sensors to Left or Right of body and average
+                for(int i=0;i<N;i++){
+                    TL[i]=0.;
+                    TR[i]=0.;
+                    for(int k=0;k<n;k++){
+                        LR[i][k]=(int)(M_PI-fabs(M_PI-fabs(fmod(theta[i]+piOver2,2.*M_PI)-phik[k]))<piOver2);
+                        if(LR[i][k]){
+                            TL[i] += tau[i][k];
+                        } else {
+                            TR[i] += tau[i][k];
+                        }
+                    }
+                    TL[i] *= nnorm;
+                    TR[i] *= nnorm;
                 }
-            }
-            
-            // spring contacting agents away from each other
-            
-            vector<vector<bool> > touching(N);
-            for(int k=0;k<N;k++){
-                touching[k].resize(N);
-            }
-            vector<double> vx(N,0.);
-            vector<double> vy(N,0.);
-            double dx2, dy2, d2, f;
-            for(int i=0;i<N;i++){
-                for(int j=0;j<N;j++){
-                    if(i!=j){
-                        dx2 = x[j]-x[i];
-                        dy2 = y[j]-y[i];
-                        d2 = dx2*dx2+dy2*dy2;
-                        if((d2<=r2x4)){
-                            f = fmin(r-sqrt(d2)*0.5,r)/sqrt(d2);
-                            vx[j] += f*dx2;
-                            vy[j] += f*dy2;
-                            touching[i][j]=true;
+                
+                
+                // Update body temperatures
+                for(int i=0;i<N;i++){
+                    tb_prev[i] = Tb[i];
+                    Tb[i] += (K2[i]*(1.-A[i])*(Tc[i]-Tb[i])-k1*A[i]*(Tb[i]-Ta)+G[i])*dt;
+                }
+                
+                // Rotate and move agents forwards and enforce circular boundary
+                for(int i=0;i<N;i++){
+                    
+                    double sR = 1./(1.+exp(sigma*(Tp-Tb[i])*TR[i]));
+                    double sL = 1./(1.+exp(sigma*(Tp-Tb[i])*TL[i]));
+                    
+                    // theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt;
+                    theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt*p[i];
+                    // V += V*p[i];
+                    
+                    x[i] += cos(theta[i])*V*dt;
+                    y[i] += sin(theta[i])*V*dt;
+                    
+                    double rho = sqrt(x[i]*x[i]+y[i]*y[i]);
+                    if((rho+r)>=ra){
+                        x[i] += (ra-rho-r)*x[i]/rho*dt;
+                        y[i] += (ra-rho-r)*y[i]/rho*dt;
+                    }
+                }
+                
+                // spring contacting agents away from each other
+                
+                vector<vector<bool> > touching(N);
+                for(int k=0;k<N;k++){
+                    touching[k].resize(N);
+                }
+                vector<double> vx(N,0.);
+                vector<double> vy(N,0.);
+                double dx2, dy2, d2, f;
+                for(int i=0;i<N;i++){
+                    for(int j=0;j<N;j++){
+                        if(i!=j){
+                            dx2 = x[j]-x[i];
+                            dy2 = y[j]-y[i];
+                            d2 = dx2*dx2+dy2*dy2;
+                            if((d2<=r2x4)){
+                                f = fmin(r-sqrt(d2)*0.5,r)/sqrt(d2);
+                                vx[j] += f*dx2;
+                                vy[j] += f*dy2;
+                                touching[i][j]=true;
+                            }
                         }
                     }
                 }
-            }
-            for(int i=0;i<N;i++){
-                x[i] += vx[i]*dt;
-                y[i] += vy[i]*dt;
-                position<<x[i]<<","<<y[i]<<","<<Tb[i]<<",";
-                // learning
-                reward = abs(Tb[i] - Tp) > abs(tb_prev[i] - Tp);
-                p[i] = 0.0;
-                for (int j = 0; j < N; ++j) {
-                    p[i] += w[i][j] * touching[i][j];
+                for(int i=0;i<N;i++){
+                    x[i] += vx[i]*dt;
+                    y[i] += vy[i]*dt;
+                    position<<x[i]<<","<<y[i]<<","<<Tb[i]<<",";
+                    // learning
+                    reward = abs(Tb[i] - Tp) > abs(tb_prev[i] - Tp);
+                    p[i] = 0.0;
+                    for (int j = 0; j < N; ++j) {
+                        p[i] += w[i][j] * touching[i][j];
+                    }
+                    
+                    for (int j = 0; j < N; ++j) {
+                        w[i][j] += gamma * (reward - p[i]) * touching[i][j];
+                        // cout << w[i][j] << endl;
+                        association<<w[i][j]<<",";
+                    }
                 }
+                // for(int i=0;i<N;i++){
+                //     association<<p[i]<<",";
+                // }
                 
-                for (int j = 0; j < N; ++j) {
-                    w[i][j] += gamma * (reward - p[i]) * touching[i][j];
-                    // cout << w[i][j] << endl;
-                    association<<w[i][j]<<",";
+                // increment huddling metrics
+                if(t>=t0){
+                    for(int i=0;i<N;i++){
+                        TbSum[i] += Tb[i];
+                    }
+                    double hud = 0.;
+                    for(int i=0;i<N;i++){
+                        hud += 1.-A[i];
+                    }
+                    hud *= overdN;
+                    for(int i=0;i<N;i++){
+                        Adifference[i] += fabs(A[i]-Aprevious[i]);
+                        Aprevious[i] = A[i];
+                    }
+                    huddling += hud;
                 }
             }
-            // for(int i=0;i<N;i++){
-            //     association<<p[i]<<",";
-            // }
-            
-            // increment huddling metrics
-            if(t>=t0){
-                for(int i=0;i<N;i++){
-                    TbSum[i] += Tb[i];
-                }
-                double hud = 0.;
-                for(int i=0;i<N;i++){
-                    hud += 1.-A[i];
-                }
-                hud *= overdN;
-                for(int i=0;i<N;i++){
-                    Adifference[i] += fabs(A[i]-Aprevious[i]);
-                    Aprevious[i] = A[i];
-                }
-                huddling += hud;
+            huddling *= norm;
+            groups *= norm;
+
+            // identify least fit agent and log metrics
+            for(int i=0;i<N;i++){
+                double TbAvg = TbSum[i]*norm;
+
+                logfile<<TbAvg<<",";
             }
+            logfile<<huddling<<","<<Ta<<",";
         }
-        huddling *= norm;
-        groups *= norm;
-
-        // identify least fit agent and log metrics
-        for(int i=0;i<N;i++){
-            double TbAvg = TbSum[i]*norm;
-
-            logfile<<TbAvg<<",";
-        }
-        logfile<<huddling<<","<<Ta<<",";
     }
     logfile.close();
     position.close();
+    association.close();
 
     // system("python vis.py");
 

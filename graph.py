@@ -44,8 +44,12 @@ Navg = np.mean(Navg,axis=1)
 Navg = np.mean(Navg,axis=1)
 
 ambient_temp = data[:, -1]
-Huddling = data[:,-2]*10
-# print(Huddling)
+huddling = data[:,-2]
+print(huddling.shape)
+n = 10
+# huddling = huddling.reshape(n, len(huddling)//n)
+# huddling = huddling.mean(axis=0)
+# print(huddling_means.shape)
 
 data = data[:, 0:-2].reshape([T, N, 1])
 B = data[:, :, 0]
@@ -87,9 +91,9 @@ f2.set_ylabel('Association')
 f3 = Fig.add_subplot(313)
 f3.set_title("Huddling")
 # f3.set_ylim(0.2, 0.6)
-days = np.linspace(1, 60, len(Huddling))
-f3.plot(days, Huddling, label="control")
-f3.plot(np.linspace(0,time[-1],Navg.shape[0]),Navg, label="learning")
+days = np.linspace(1, 60, 12)
+f3.plot(days, huddling, label="control")
+# f3.plot(np.linspace(0,time[-1],Navg.shape[0]),Navg, label="learning")
 f3.set_xlabel('Days')
 f3.set_ylabel('Huddle Size')
 f3.legend()
