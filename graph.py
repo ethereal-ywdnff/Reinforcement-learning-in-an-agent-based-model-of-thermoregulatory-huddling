@@ -21,34 +21,43 @@ association = data2[:, 12:24]
 # print(association[:, :1].shape)
 # print(association)
 
-F = "learning.txt"
-M = 3
-K = 1
-S = 5000
-data3 = np.fromfile(F,count=-1,sep=',')
-# print(data.shape)
-N = int(data3[0])
-# dt = data[1]
-# print(dt)
-data3 = data3[1:]
-T1 = int(np.floor(len(data3)/(N*M+K)))
-data3 = data3[0:(T1*(N*M+K))]
-data3 = data3.reshape([T1,N*M+K])
-time = data3[:,-1]
-data3 = data3[:,:N*M].reshape([T1,N,M])
-N2 = data3[:,:,0]
-QA = data3[:,:,1]
+# F = "learning.txt"
+# M = 3
+# K = 1
+# S = 5000
+# data3 = np.fromfile(F,count=-1,sep=',')
+# # print(data.shape)
+# N = int(data3[0])
+# # dt = data[1]
+# # print(dt)
+# data3 = data3[1:]
+# T1 = int(np.floor(len(data3)/(N*M+K)))
+# data3 = data3[0:(T1*(N*M+K))]
+# data3 = data3.reshape([T1,N*M+K])
+# time = data3[:,-1]
+# data3 = data3[:,:N*M].reshape([T1,N,M])
+# N2 = data3[:,:,0]
+# QA = data3[:,:,1]
 
-Navg = np.reshape(N2,[T1//S,S,N])
-Navg = np.mean(Navg,axis=1)
-Navg = np.mean(Navg,axis=1)
+# Navg = np.reshape(N2,[T1//S,S,N])
+# Navg = np.mean(Navg,axis=1)
+# Navg = np.mean(Navg,axis=1)
 
 ambient_temp = data[:, -1]
 huddling = data[:,-2]
 print(huddling.shape)
-n = 10
-# huddling = huddling.reshape(n, len(huddling)//n)
-# huddling = huddling.mean(axis=0)
+n = 5
+huddling = huddling.reshape(n, len(huddling)//n)
+huddling = huddling.mean(axis=0)
+
+data3 = np.fromfile("learning.txt",count=-1,sep=',')
+T1 = int(np.floor(len(data3) / (N * 1 + 2)))
+data3 = data3[0:(T1 * (N * 1 + 2))]
+data3 = data3.reshape([T1, N * 1 + 2])
+huddling_learning = data3[:,-2]
+print(huddling_learning.shape)
+huddling_learning = huddling_learning.reshape(n, len(huddling_learning)//n)
+huddling_learning = huddling_learning.mean(axis=0)
 # print(huddling_means.shape)
 
 data = data[:, 0:-2].reshape([T, N, 1])
@@ -90,9 +99,11 @@ f2.set_ylabel('Association')
 
 f3 = Fig.add_subplot(313)
 f3.set_title("Huddling")
-# f3.set_ylim(0.2, 0.6)
+f3.set_ylim(0.1, 0.65)
 days = np.linspace(1, 60, 12)
-f3.plot(days, huddling, label="control")
+days_l = np.arange(60)
+f3.plot(days, huddling, label="no learning")
+f3.plot(days, huddling_learning, label="learning")
 # f3.plot(np.linspace(0,time[-1],Navg.shape[0]),Navg, label="learning")
 f3.set_xlabel('Days')
 f3.set_ylabel('Huddle Size')

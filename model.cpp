@@ -1,9 +1,6 @@
-/*
- Supplement to Wilson, SP (2017) PLoS Computational Biology.
- Implementation of the agent-based huddling model written in c++.
- This script should be compiled using e.g., "g++ -o model model.cpp" from the command line.
- Evolve N=12 agents at T_A=10 degrees with alpha=3.0 for 10000 generations using e.g., "./model 12 10.0 3.0 10000 1 test.txt".
- */
+// g++ model.cpp -o model
+// g++ model.cpp -o model & ./model output.txt
+// ./model learning.txt
 
 #include <math.h>
 #include <vector>
@@ -33,7 +30,7 @@ int main(int argc, char** argv){
     
     // logfile
     std::stringstream ss;
-    ss<<"output.txt";
+    ss<<argv[1];
     ofstream logfile;
     logfile.open(ss.str().c_str(),ios::out|ios::trunc);
 
@@ -48,6 +45,8 @@ int main(int argc, char** argv){
     ss2<<"association.txt";
     ofstream association;
     association.open(ss2.str().c_str(),ios::out|ios::trunc);
+
+
     
     // Preset model parameters
     int n = 1000;                           // number of sensors (per agent)
@@ -63,7 +62,8 @@ int main(int argc, char** argv){
     double sigma = -1./100.;                // constant for sensor/motor mapping
     double Tp = 37.;                        // preferred body temperature
     double dt = 0.05;                       // integration time constant
-    double gamma = 0.2;
+    double gamma = 0.001;
+    double p = 0.0;
     
     // Evolvable thermal variables
     vector<double> G (N, Gmax);
@@ -73,7 +73,7 @@ int main(int argc, char** argv){
     vector <double> x(N,0.);                // x location for N agents
     vector <double> y(N,0.);                // y location for N agents
     vector <double> theta(N,0.);            // orientation for N agents
-    vector<double> p(N, 0.0);
+    // vector<double> p(N, 0.0);
     vector<vector<double> > w(N, vector<double>(N, 0.));
     vector<double> tb_prev(N, 0.);
     double reward = 0.;
@@ -122,7 +122,7 @@ int main(int argc, char** argv){
      START OF MAIN SIMUALTION
      */
     
-    for (int o=0; o<1; o++) {
+    for (int o=0; o<5; o++) {
     
         for (int day=0; day<60;day+=5){
             Tp = (40-32)*exp(-day/10)+32;
@@ -222,7 +222,7 @@ int main(int argc, char** argv){
                     double sL = 1./(1.+exp(sigma*(Tp-Tb[i])*TL[i]));
                     
                     // theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt;
-                    theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt*p[i];
+                    theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt*p*40;
                     // V += V*p[i];
                     
                     x[i] += cos(theta[i])*V*dt;
@@ -265,13 +265,13 @@ int main(int argc, char** argv){
                     position<<x[i]<<","<<y[i]<<","<<Tb[i]<<",";
                     // learning
                     reward = abs(Tb[i] - Tp) > abs(tb_prev[i] - Tp);
-                    p[i] = 0.0;
-                    for (int j = 0; j < N; ++j) {
-                        p[i] += w[i][j] * touching[i][j];
+                    p = 0.0;
+                    for (int j = 0; j < N; j++) {
+                        p += w[i][j] * touching[i][j];
                     }
                     
-                    for (int j = 0; j < N; ++j) {
-                        w[i][j] += gamma * (reward - p[i]) * touching[i][j];
+                    for (int j = 0; j < N; j++) {
+                        w[i][j] += gamma * (reward - p) * touching[i][j];
                         // cout << w[i][j] << endl;
                         association<<w[i][j]<<",";
                     }
@@ -307,15 +307,17 @@ int main(int argc, char** argv){
                 logfile<<TbAvg<<",";
             }
             logfile<<huddling<<","<<Ta<<",";
+
         }
     }
     logfile.close();
     position.close();
     association.close();
 
+
     // system("python vis.py");
 
-    filialHuddling(N);
+    // filialHuddling(N);
 
     return 0;
 };
