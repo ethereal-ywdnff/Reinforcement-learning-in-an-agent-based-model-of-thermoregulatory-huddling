@@ -99,7 +99,7 @@ f2.set_ylabel('Association')
 
 f3 = Fig.add_subplot(313)
 f3.set_title("Huddling")
-f3.set_ylim(0.1, 0.65)
+# f3.set_ylim(0.1, 0.65)
 days = np.linspace(1, 60, 12)
 days_l = np.arange(60)
 f3.plot(days, huddling, label="no learning")

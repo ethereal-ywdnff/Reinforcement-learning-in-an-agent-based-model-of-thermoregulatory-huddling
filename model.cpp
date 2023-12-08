@@ -1,6 +1,9 @@
-// g++ model.cpp -o model
-// g++ model.cpp -o model & ./model output.txt
-// ./model learning.txt
+/*
+g++ model.cpp -o model
+./model output.txt 0
+./model learning.txt 1
+*/
+
 
 #include <math.h>
 #include <vector>
@@ -63,7 +66,8 @@ int main(int argc, char** argv){
     double Tp = 37.;                        // preferred body temperature
     double dt = 0.05;                       // integration time constant
     double gamma = 0.001;
-    double p = 0.0;
+    double leanring = stod(argv[2]);
+    // double p = 0.0;
     
     // Evolvable thermal variables
     vector<double> G (N, Gmax);
@@ -73,7 +77,7 @@ int main(int argc, char** argv){
     vector <double> x(N,0.);                // x location for N agents
     vector <double> y(N,0.);                // y location for N agents
     vector <double> theta(N,0.);            // orientation for N agents
-    // vector<double> p(N, 0.0);
+    vector<double> p(N, 0.0);
     vector<vector<double> > w(N, vector<double>(N, 0.));
     vector<double> tb_prev(N, 0.);
     double reward = 0.;
@@ -123,7 +127,6 @@ int main(int argc, char** argv){
      */
     
     for (int o=0; o<5; o++) {
-    
         for (int day=0; day<60;day+=5){
             Tp = (40-32)*exp(-day/10)+32;
             // Reset positions and orientations
@@ -221,8 +224,11 @@ int main(int argc, char** argv){
                     double sR = 1./(1.+exp(sigma*(Tp-Tb[i])*TR[i]));
                     double sL = 1./(1.+exp(sigma*(Tp-Tb[i])*TL[i]));
                     
-                    // theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt;
-                    theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt*p*40;
+                    if (leanring == 1){
+                        theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt*p[i]*50;
+                    } else {
+                        theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt;
+                    }
                     // V += V*p[i];
                     
                     x[i] += cos(theta[i])*V*dt;
@@ -265,13 +271,13 @@ int main(int argc, char** argv){
                     position<<x[i]<<","<<y[i]<<","<<Tb[i]<<",";
                     // learning
                     reward = abs(Tb[i] - Tp) > abs(tb_prev[i] - Tp);
-                    p = 0.0;
+                    p[i] = 0.0;
                     for (int j = 0; j < N; j++) {
-                        p += w[i][j] * touching[i][j];
+                        p[i] += w[i][j] * touching[i][j];
                     }
                     
                     for (int j = 0; j < N; j++) {
-                        w[i][j] += gamma * (reward - p) * touching[i][j];
+                        w[i][j] += gamma * (reward - p[i]) * touching[i][j];
                         // cout << w[i][j] << endl;
                         association<<w[i][j]<<",";
                     }
