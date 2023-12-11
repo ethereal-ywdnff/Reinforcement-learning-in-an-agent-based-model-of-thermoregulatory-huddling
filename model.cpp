@@ -49,8 +49,6 @@ int main(int argc, char** argv){
     ofstream association;
     association.open(ss2.str().c_str(),ios::out|ios::trunc);
 
-
-    
     // Preset model parameters
     int n = 1000;                           // number of sensors (per agent)
     int t1 = 1000;                          // number of iterations of huddling dynamics (within generation; NOTE: set to 10000 if reproducing Figure 5)
@@ -122,13 +120,24 @@ int main(int argc, char** argv){
     double normOverDt = norm/dt;
     
     
+    
     /*
      START OF MAIN SIMUALTION
      */
     
-    for (int o=0; o<5; o++) {
+    for (int o=0; o<10; o++) {
+
         for (int day=0; day<60;day+=5){
-            Tp = (40-32)*exp(-day/10)+32;
+            double kk = 8.31;
+            double fat = exp(-double(day)/kk);
+            double ss = -kk*fat*log(fat);
+            double gg = kk*(1+ss);
+            double T1 = 8.0*fat;
+            double nn = 19.*exp(-kk*t1);
+            double T2 = nn*gg/40.;
+
+            Tp = 36+T1-T2;
+            //Tp = (40-32)*exp(-day/10)+32;
             // Reset positions and orientations
             for (int i=0;i<N;i++){
                 double theta_init = randDouble()*M_PI*2.;
@@ -229,7 +238,7 @@ int main(int argc, char** argv){
                     } else {
                         theta[i] += atan(Vr*(sL-sR)/(sL+sR))*dt;
                     }
-                    // V += V*p[i];
+                    // V += V*p[i]*50;
                     
                     x[i] += cos(theta[i])*V*dt;
                     y[i] += sin(theta[i])*V*dt;

@@ -46,7 +46,7 @@ association = data2[:, 12:24]
 ambient_temp = data[:, -1]
 huddling = data[:,-2]
 print(huddling.shape)
-n = 5
+n = 10
 huddling = huddling.reshape(n, len(huddling)//n)
 huddling = huddling.mean(axis=0)
 
