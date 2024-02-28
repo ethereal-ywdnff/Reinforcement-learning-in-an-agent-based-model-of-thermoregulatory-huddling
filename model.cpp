@@ -2,6 +2,9 @@
 g++ model.cpp -o model
 ./model output.txt 0
 ./model learning.txt 1
+
+This model is to simulate the filial huddling.
+It can simulate adult mice's behaviour with (or without) reinforcement learning.
 */
 
 
@@ -15,7 +18,6 @@ g++ model.cpp -o model
 using namespace std;
 
 double randDouble(void);
-void filialHuddling(int n);
 
 int main(int argc, char** argv){
     
@@ -27,9 +29,9 @@ int main(int argc, char** argv){
     
     
     // Supplied model parameters
-    int N = 12;                   // number of agents
-    double Ta = 20;               // ambient temperature
-    double alpha = 3.0;           // fitness weighting
+    int N = 12;                    // number of agents
+    double Ta = 25;                // ambient temperature
+    double alpha = 3.0;            // fitness weighting
     
     // logfile
     std::stringstream ss;
@@ -51,7 +53,7 @@ int main(int argc, char** argv){
 
     // Preset model parameters
     int n = 1000;                           // number of sensors (per agent)
-    int t1 = 1000;                          // number of iterations of huddling dynamics (within generation; NOTE: set to 10000 if reproducing Figure 5)
+    int t1 = 1000;                          // number of iterations of huddling dynamics
     int t0 = 200;                           // start time for averaging (within generation)
     double r = 1.0;                         // radius of circular agent
     double ra = 10.*r;                      // arena radius
@@ -65,7 +67,6 @@ int main(int argc, char** argv){
     double dt = 0.05;                       // integration time constant
     double gamma = 0.001;
     double leanring = stod(argv[2]);
-    // double p = 0.0;
     
     // Evolvable thermal variables
     vector<double> G (N, Gmax);
@@ -75,10 +76,10 @@ int main(int argc, char** argv){
     vector <double> x(N,0.);                // x location for N agents
     vector <double> y(N,0.);                // y location for N agents
     vector <double> theta(N,0.);            // orientation for N agents
-    vector<double> p(N, 0.0);
-    vector<vector<double> > w(N, vector<double>(N, 0.));
-    vector<double> tb_prev(N, 0.);
-    double reward = 0.;
+    vector<double> p(N, 0.0);               // prediction
+    vector<vector<double> > w(N, vector<double>(N, 0.)); // weight of each agent
+    vector<double> tb_prev(N, 0.);          // previous body temperature
+    double reward = 0.;                     // reward
     vector <vector <int> > LR (N);          // label sensors as on the left (1) or right (0)
     vector <vector <double> > tau (N);      // temperature sensors
     vector <vector <double> > DK (N);       // distance of taxel from nearest pup
@@ -124,10 +125,10 @@ int main(int argc, char** argv){
     /*
      START OF MAIN SIMUALTION
      */
-    
-    for (int o=0; o<10; o++) {
 
+    for (int o=0; o<10; o++) {
         for (int day=0; day<60;day+=5){
+            // Change the preferred temperature to simulate the situation of pups growing up
             double kk = 8.31;
             double fat = exp(-double(day)/kk);
             double ss = -kk*fat*log(fat);
@@ -135,9 +136,11 @@ int main(int argc, char** argv){
             double T1 = 8.0*fat;
             double nn = 19.*exp(-kk*t1);
             double T2 = nn*gg/40.;
-
             Tp = 36+T1-T2;
+
+            // Another way to change the preferred tamperature
             //Tp = (40-32)*exp(-day/10)+32;
+            
             // Reset positions and orientations
             for (int i=0;i<N;i++){
                 double theta_init = randDouble()*M_PI*2.;
@@ -320,6 +323,7 @@ int main(int argc, char** argv){
                 double TbAvg = TbSum[i]*norm;
 
                 logfile<<TbAvg<<",";
+                // cout<<TbAvg<<endl;
             }
             logfile<<huddling<<","<<Ta<<",";
 
@@ -329,159 +333,11 @@ int main(int argc, char** argv){
     position.close();
     association.close();
 
-
     // system("python vis.py");
-
-    // filialHuddling(N);
 
     return 0;
 };
 
-void filialHuddling(int n) {
-    srand(1);
-    int timesteps = 50000;
-    double dt = 60./(double)timesteps;
-    double gamma = 0.001;   // Delta-rule learning-rate
-    double beta = 1./5.;
-    
-    // Q maintains associative strengths (alpha)
-    vector<vector<double> > Q(n);
-    for(int i=0;i<n;i++){
-        if(gamma == 0.){
-            Q[i].resize(n,1.);
-        } else {
-            Q[i].resize(n,0.);
-        }
-        Q[i][i] = 0.;
-    }
-    
-    // logfile
-    std::stringstream ss;
-    ss<<"learning.txt";
-    ofstream learning;
-    learning.open(ss.str().c_str(),ios::out|ios::trunc);
-    learning<<n<<",";    // record N first
-    
-    vector<int> I(n,0); // ID of the group it belongs to
-    vector<int> S(n,0);
-    
-    // constants
-    double k = 8.31;
-    double c1 = 19.;
-    double c2 = 3.;
-    double c3 = 1./40.;
-    // double Tp = 35.7;
-    
-    double TIME = 0.;
-    for(int t=0;t<timesteps;t++){
-        
-        TIME += dt;
-        
-        bool monte = true;
-        
-        for (int i=0;i<n;i++){
-            S[i] = 0;
-        }
-        
-        for (int i=0;i<n;i++){
-            S[I[i]]++;
-        }
-        
-        // model
-        double P  = exp(-TIME/k);       // brown fat depletion
-        double G  = k*(1.-k*P*log(P)); // metabolic rate as entropy
-        double M  = k*(1.-P);          // muscle mass
-        double T1 = c2*P;              // temperature preference 1
-        double N  = c1*exp(-k*T1);     // non-muscle mass
-        double T2 = c3*N*G;            // temperature preference 2
-        // cout <<T1<<" "<<T2<< endl;
-        
-        // number of groups
-        vector<int> groups(0);
-        int Ngroups = 0;
-        for(int i=0;i<n;i++){
-            if(S[i]>0){
-                groups.push_back(i);
-                Ngroups++;
-            }
-        }
-        
-        // randomly picked individual
-        int a = floor(randDouble()*n);
-        
-        double reward = 0.;
-        
-        if (Ngroups==1){
-            I[a]=(I[a]+1)%n;
-        }
-        else if (Ngroups==n){
-            int b=a;
-            while(I[b]==I[a]){
-                b = floor(randDouble()*n);
-            }
-            I[b]=I[a];
-        }
-        else {
-            int b=a;
-            while(I[b]==I[a]){
-                b = floor(randDouble()*n);
-            }
-            
-            // Thermodynamic temperature
-            double T = 1./(1.+exp(-Q[b][a]*(T1-T2)*beta));
-            
-            
-            // Join together the groups to which a and b belong
-            if (randDouble()<T){
-                
-                reward = 1.;
-                vector<int> A(0);
-                for(int i=0;i<n;i++){
-                    if(I[i]==I[a]){
-                        A.push_back(i);
-                    }
-                }
-                for(int i=0;i<A.size();i++){
-                    I[A[i]] = I[b];
-                }
-            }
-            
-            // Split pup a from its group
-            else {
-                reward = 0.;
-                vector<int> Q(n);
-                for(int i=0;i<Ngroups;i++){
-                    Q[groups[i]] = 1;
-                }
-                for(int i=0;i<n;i++){
-                    if(Q[i]==0){
-                        I[a] = i;
-                        break;
-                    }
-                }
-            }
-
-            // Update associative strengths
-            double sumQ = 0.;
-            for(int j=0; j<n;j++){
-                if(!(j==a)){
-                    sumQ += Q[a][j];
-                }
-            }
-            Q[a][b] += gamma*(reward-sumQ);
-        }
-        
-        // Log data to text file
-        for(int i=0;i<n;i++){
-            learning<<S[I[i]]<<","<<Q[0][i]<<","<<Q[i][0]<<",";
-        }
-        learning<<t*dt<<",";
-        learning<<endl;
-        
-    }
-    
-    learning.close();
-}
 
 double randDouble(void){
     /* 

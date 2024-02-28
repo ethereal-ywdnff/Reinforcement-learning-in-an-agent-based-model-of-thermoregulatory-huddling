@@ -19,8 +19,6 @@ data = data.reshape([len(data)//(n_agent*3), n_agent * 3])
 # print(data[1, 0])
 # print(data[:, 1][0])
 
-
-# colors = ['red', 'blue', 'green', 'orange', 'purple', 'pink', 'cyan', 'magenta', 'yellow', 'brown', 'gray', 'black']
 cmap = plt.get_cmap('coolwarm')
 
 plt.figure(figsize=(6, 6))
