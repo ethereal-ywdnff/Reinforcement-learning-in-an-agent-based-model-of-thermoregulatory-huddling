@@ -129,13 +129,13 @@ int main(int argc, char** argv){
     for (int o=0; o<10; o++) {
         for (int day=0; day<60;day+=5){
             // Change the preferred temperature to simulate the situation of pups growing up
-            double kk = 8.31;
-            double fat = exp(-double(day)/kk);
-            double ss = -kk*fat*log(fat);
-            double gg = kk*(1+ss);
-            double T1 = 8.0*fat;
-            double nn = 19.*exp(-kk*t1);
-            double T2 = nn*gg/40.;
+            double kk = 8.31;                   // time constant
+            double fat = exp(-double(day)/kk);  // brown fat depletion
+            double ss = -kk*fat*log(fat);       // entropy associated with fat
+            double gg = kk*(1+ss);              // metabolic rate as entropy
+            double T1 = 8.0*fat;                // temperature preference 1
+            double nn = 19.*exp(-kk*t1);        // non-muscle mass
+            double T2 = nn*gg/40.;              // temperature preference 1
             Tp = 36+T1-T2;
 
             // Another way to change the preferred tamperature
