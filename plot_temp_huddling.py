@@ -5,9 +5,7 @@ This is to plot graphs of body temperature and huddling under different ambient 
 import numpy as np
 import matplotlib.pyplot as plt
 
-# filename = "temp_from10to35_no_learning.txt"
-filename = "temp_huddling_from0to35.txt"
-# filename = "output1.txt"
+filename = "output1.txt"
 
 # extract data from long list
 N = 12
@@ -51,7 +49,6 @@ f1.set_ylabel('Body temperature')
 f1.legend()
 
 f2 = Fig.add_subplot(212)
-# f2.plot(ambient_temp, huddling, marker='o')
 errors = np.random.uniform(0.02, 0.05, size=len(ambient_temp))
 f2.errorbar(ambient_temp, huddling, yerr=errors, fmt='o')
 f2.set_xlabel('Ambient temperature')

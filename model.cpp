@@ -345,7 +345,3 @@ double randDouble(void){
      */
     return ((double) rand())/(double)(RAND_MAX);
 }
-
-
-
-

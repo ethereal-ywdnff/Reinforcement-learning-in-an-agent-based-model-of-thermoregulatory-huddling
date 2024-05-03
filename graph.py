@@ -5,8 +5,7 @@ This is to plot graphs of huddling and association between agents
 import numpy as np
 import matplotlib.pyplot as plt
 
-filename = "output_temp.txt"
-# filename = "output.txt"
+filename = "output.txt"
 
 # extract data from long list
 N = 12
@@ -26,20 +25,17 @@ association = data2[:12000, 1:12]
 
 ambient_temp = data[:, -1]
 huddling = data[:,-2]
-# print(huddling.shape)
 n = 10
 huddling = huddling.reshape(n, len(huddling)//n)
 huddling = huddling.mean(axis=0)
 
-data3 = np.fromfile("learning_learning.txt",count=-1,sep=',')
+data3 = np.fromfile("learning.txt",count=-1,sep=',')
 T1 = int(np.floor(len(data3) / (N * 1 + 2)))
 data3 = data3[0:(T1 * (N * 1 + 2))]
 data3 = data3.reshape([T1, N * 1 + 2])
 huddling_learning = data3[:,-2]
-# print(huddling_learning.shape)
 huddling_learning = huddling_learning.reshape(n, len(huddling_learning)//n)
 huddling_learning = huddling_learning.mean(axis=0)
-# print(huddling_means.shape)
 
 data = data[:, 0:-2].reshape([T, N, 1])
 B = data[:, :, 0]
@@ -71,7 +67,6 @@ f1.set_ylabel('Association')
 
 f2 = Fig.add_subplot(212)
 f2.set_title("Huddling")
-# f2.set_ylim(0.3, 0.5)
 days = np.linspace(1, 60, 12)
 days_l = np.arange(60)
 f2.plot(days, huddling, label="no learning")

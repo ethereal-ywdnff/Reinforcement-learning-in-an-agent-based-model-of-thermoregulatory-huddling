@@ -5,8 +5,8 @@ This project aims to discover how social dynamics could emerge from interactions
 ### Files Description
 - model-physiological_huddling.cpp: The model is to simulate the physiological huddling.
 - model.cpp: This model is to simulate the filial huddling.
-- plot_temp_huddling.py: Plot graphs of body temperature and huddling under different ambient temperatures.
-- graph.py: Plot graphs of huddling and association between agents
+- plot_temp_huddling.py: Plot graphs of body temperature and huddling under different ambient temperatures for physiological huddling. (using output1.txt)
+- graph.py: Plot graphs of huddling and association between agents for filial huddling. (using output.txt, learning.txt and association.txt)
 - vis.py: Visualization of the agents' movements.
 
 
