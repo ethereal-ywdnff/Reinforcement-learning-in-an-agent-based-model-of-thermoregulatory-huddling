@@ -1,23 +1,19 @@
+"""
+Visualization of the agents' movements.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 
-filename = "position.txt"
+filename = "position1.txt"
 # filename = "position_noLearning.txt"
 # filename = "position_Learning.txt"
 
 # extract data from long list
 n_agent = 12
 data = np.fromfile(filename, count=-1, sep=',')
-print(data.shape)
-# T = int(np.floor(len(data)))
-# data = data[:((len(data))//12)]
-# print(data.shape)
+
 data = data.reshape([len(data)//(n_agent*3), n_agent * 3])
-# data = data[0:36036]
-# data = data.reshape([36036//(n_agent*3), n_agent * 3])
-# print(data.shape)
-# print(data[1, 0])
-# print(data[:, 1][0])
 
 cmap = plt.get_cmap('coolwarm')
 

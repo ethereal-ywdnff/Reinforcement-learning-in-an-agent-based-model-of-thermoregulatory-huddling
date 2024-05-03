@@ -37,8 +37,7 @@ for b in range(T):
 # sort the lists
 ambient_temp = sorted(ambient_temp)
 body_temp = sorted(body_temp)
-# print(f"ambient_temp: {ambient_temp}")
-# print(f"body_temp: {body_temp}")
+
 
 x = [0, 5, 10, 15, 20, 25, 30, 35]
 y = [5, 10, 15, 20, 25, 30, 35, 40]

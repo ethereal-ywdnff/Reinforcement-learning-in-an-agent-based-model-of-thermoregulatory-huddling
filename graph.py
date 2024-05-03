@@ -5,8 +5,8 @@ This is to plot graphs of huddling and association between agents
 import numpy as np
 import matplotlib.pyplot as plt
 
-# filename = "output_temp.txt"
-filename = "output.txt"
+filename = "output_temp.txt"
+# filename = "output.txt"
 
 # extract data from long list
 N = 12
@@ -22,8 +22,6 @@ data2 = np.fromfile("association.txt", count=-1, sep=',')
 data2 = data2.reshape(len(data2)//(N*N), N*N)
 print(data2.shape)
 association = data2[:12000, 1:12]
-# print(association[:, :1].shape)
-# print(association)
 
 
 ambient_temp = data[:, -1]
@@ -33,7 +31,7 @@ n = 10
 huddling = huddling.reshape(n, len(huddling)//n)
 huddling = huddling.mean(axis=0)
 
-data3 = np.fromfile("learning.txt",count=-1,sep=',')
+data3 = np.fromfile("learning_learning.txt",count=-1,sep=',')
 T1 = int(np.floor(len(data3) / (N * 1 + 2)))
 data3 = data3[0:(T1 * (N * 1 + 2))]
 data3 = data3.reshape([T1, N * 1 + 2])
@@ -60,32 +58,27 @@ for b in range(T):
 # sort the lists
 ambient_temp = sorted(ambient_temp)
 body_temp = sorted(body_temp)
-# print(f"ambient_temp: {ambient_temp}")
-# print(f"body_temp: {body_temp}")
-# print(sorted_bt)
+
 
 Fig = plt.figure(figsize=(7, 7))
-f1 = Fig.add_subplot(311)
-f1.plot(ambient_temp, body_temp)
-f1.set_xlabel('Ambient temperature')
-f1.set_ylabel('Body temperature')
 
-f2 = Fig.add_subplot(312)
-f2.set_ylim(-0.5, 1)
-f2.plot(association)
-f2.set_xlabel('Iteration')
-f2.set_ylabel('Association')
 
-f3 = Fig.add_subplot(313)
-f3.set_title("Huddling")
-# f3.set_ylim(0.3, 0.5)
+f1 = Fig.add_subplot(211)
+f1.set_ylim(-0.5, 1)
+f1.plot(association)
+f1.set_xlabel('Iteration')
+f1.set_ylabel('Association')
+
+f2 = Fig.add_subplot(212)
+f2.set_title("Huddling")
+# f2.set_ylim(0.3, 0.5)
 days = np.linspace(1, 60, 12)
 days_l = np.arange(60)
-f3.plot(days, huddling, label="no learning")
-f3.plot(days, huddling_learning, label="learning")
-f3.set_xlabel('Days')
-f3.set_ylabel('Huddle Size')
-f3.legend()
+f2.plot(days, huddling, label="no learning")
+f2.plot(days, huddling_learning, label="learning")
+f2.set_xlabel('Days')
+f2.set_ylabel('Huddle Size')
+f2.legend()
 
 plt.tight_layout()
 plt.show()
