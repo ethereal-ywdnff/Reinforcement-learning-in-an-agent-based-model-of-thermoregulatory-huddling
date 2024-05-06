@@ -1,10 +1,10 @@
 /*
+This model is to simulate the filial huddling.
+It can simulate adult mice's behaviour with (or without) reinforcement learning.
+
 g++ model.cpp -o model
 ./model output.txt 0
 ./model learning.txt 1
-
-This model is to simulate the filial huddling.
-It can simulate adult mice's behaviour with (or without) reinforcement learning.
 */
 
 

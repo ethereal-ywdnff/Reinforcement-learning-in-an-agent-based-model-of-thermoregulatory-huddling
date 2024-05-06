@@ -1,12 +1,14 @@
 """
 Visualization of the agents' movements.
+
+python vis.py
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-filename = "position.txt"
-# filename = "position1.txt"
+filename = "position.txt" # data form the model (filial huddling)
+filename = "position1.txt" # data from the model-physiological_huddling (physiological huddling)
 
 # extract data from long list
 n_agent = 12

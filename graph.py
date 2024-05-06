@@ -1,5 +1,7 @@
 """
 This is to plot graphs of huddling and association between agents for filial huddling.
+
+python graph.py
 """
 
 import numpy as np

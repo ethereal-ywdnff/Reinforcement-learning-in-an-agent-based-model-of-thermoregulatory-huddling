@@ -1,9 +1,9 @@
 /*
-g++ model-physiological_huddling.cpp -o physiological_huddling
-./physiological_huddling
-
 This model is to simulate the physiological huddling, which can generate data used to visualize the movements and plot graphs 
 of body temperature and huddling under different ambient temperatures.
+
+g++ model-physiological_huddling.cpp -o physiological_huddling
+./physiological_huddling
 */
 
 
