@@ -1,5 +1,5 @@
 """
-This is to plot graphs of body temperature and huddling under different ambient temperatures.
+This is to plot graphs of body temperature and huddling under different ambient temperatures for physiological huddling.
 """
 
 import numpy as np
