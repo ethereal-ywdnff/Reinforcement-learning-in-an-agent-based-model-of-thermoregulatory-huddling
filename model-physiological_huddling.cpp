@@ -1,4 +1,5 @@
 /*
+The code references Dr Stuart Wilson's code that was modified by Kanghua Liu to apply to this project.
 This model is to simulate the physiological huddling, which can generate data used to visualize the movements and plot graphs 
 of body temperature and huddling under different ambient temperatures.
 

@@ -1,4 +1,5 @@
 /*
+The code references Dr Stuart Wilson's code that was modified by Kanghua Liu to apply to this project.
 This model is to simulate the filial huddling.
 It can simulate adult mice's behaviour with (or without) reinforcement learning.
 

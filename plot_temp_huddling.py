@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 
 filename = "output1.txt"
 
-# extract data from long list
 N = 12
 data = np.fromfile(filename, count=-1, sep=',')
 T = int(np.floor(len(data) / (N * 1 + 2)))
